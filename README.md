@@ -29,8 +29,8 @@ To set up the Movie Recommendation System locally, follow these steps:
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/yourusername/ReelRecommender.git
-    cd ReelRecommender
+    git clone https://github.com/vimalbhoutekar/Movie-Recommendation-System-Project.git
+    cd Movie-Recommendation-System-Project
     ```
 
 2. **Create and activate a virtual environment:**
@@ -125,4 +125,4 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-**Developed by Your Name**
+**Developed by Vimal Bhoutekar**
