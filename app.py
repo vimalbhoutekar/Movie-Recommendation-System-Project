@@ -573,3 +573,6 @@ async def search_results():
                            total_results=total_results,
                            query=query)
 
+if __name__ == '__main__':
+    app.debug = True
+    app.run()
