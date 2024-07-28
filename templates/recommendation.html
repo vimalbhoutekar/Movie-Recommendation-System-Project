@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='Style/style.css') }}"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='Style/recommendation.css') }}"
+  />
+</head>
+
+<body>
+    <nav id="navbar">
+        <div class="container">
+          <div class="logo-search-wrapper">
+            <a href="/" class="logo">CineVerse</a>
+            <div class="search-container">
+              <form action="/search_results" method="GET">
+                <input
+                  type="text"
+                  name="query"
+                  id="searchBar"
+                  placeholder="Search for a movie..."
+                />
+                <button type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommendation">Recommendations</a></li>
+            <li class="dropdown">
+              <a href="javascript:void(0)">Movies</a>
+              <div class="dropdown-content">
+                <a href="/popular">Popular Movies</a>
+                <a href="/upcoming_movies">Upcoming Movies</a>
+                <a href="/top_rated">Top Rated Movies</a>
+                <a href="/now_playing">Now Playing Movies</a>
+              </div>
+            </li>
+            <li><a href="/popular_people">Popular People</a></li>
+            <li><a href="/about">About</a></li>
+          </ul>
+          <div class="hamburger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+          </div>
+        </div>
+      </nav>
+
+ 
+      <header class="recommendation-header">
+        <h1>Movie Recommendations</h1>
+        <p>Discover your next favorite movie based on your preferences</p>
+    </header>
+
+    <main class="container">
+        <section class="search-section">
+            <h2>Find Your Perfect Movie Match</h2>
+            <form action="/recommendation" method="POST" class="recommendation-form">
+                <div class="autocomplete">
+                    <input id="movieInput" type="text" name="movies" placeholder="Enter a movie you love...">
+                </div>
+                <button type="submit" class="cta-button">Get Recommendations</button>
+            </form>
+        </section>
+
+        {% if status and selected_movie %}
+
+        <section class="selected-movie">
+          <h2>Based on Your Choice</h2>
+          <div class="movie-details-container">
+              <div class="movie-poster">
+                  <img src="{{ selected_movie.poster_path }}" alt="{{ selected_movie.title }}">
+              </div>
+              <div class="movie-details">
+                  <h2>{{ selected_movie.title }}</h2>
+                  <p class="overview">{{ selected_movie.overview }}</p>
+                  <p><span class="title">Genres:</span> {{ selected_movie.genres }}</p>
+                  <p><span class="title">Release Date:</span> <span class="release-date" data-date="{{ selected_movie.release_date }}">{{ selected_movie.release_date }}</span></p>
+                  <div class="rating">
+                      <span class="title">Rating:</span>
+                      <i class="fas fa-star"></i>
+                      <span>{{ selected_movie.vote_average }}/10</span>
+                  </div>
+                  <p><span class="title">Runtime:</span> {{ selected_movie.runtime }} mins</p>
+                  <p><span class="title">Status:</span> {{ selected_movie.status }}</p>
+              </div>
+          </div>
+      </section>
+
+      <section class="cast-section">
+        <h2>Top Cast</h2>
+        <div class="cast-grid">
+            {% for cast_member in selected_movie.cast[:11] %}
+            <div class="cast-member">
+                <div class="cast-image">
+                    <img src="{{ cast_member.profile_path }}" alt="{{ cast_member.name }}">
+                </div>
+                <div class="cast-info">
+                    <h3 class="cast-name">{{ cast_member.name }}</h3>
+                    <p class="cast-character">{{ cast_member.character }}</p>
+                    <a href="{{ url_for('person_details', person_id=cast_member.id) }}" class="view-profile">View Profile</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+        <section class="recommendations">
+            <h2>Recommended Movies</h2>
+            <div class="movie-grid">
+                {% for movie in recommended_movies %}
+                <div class="movie-item">
+                    <a href="{{ url_for('movie_details', movie_id=movie.id) }}">
+                        <img src="{{ movie.poster_path }}" alt="{{ movie.title }}">
+                        <div class="movie-info">
+                            <h2>{{ movie.title }}</h2>
+                            <p><span class="title">Release Date:</span> <span class="release-date" data-date="{{ movie.release_date }}">{{ movie.release_date }}</span></p>
+                            <div class="rating">
+                                <span class="title">Rating:</span>
+                                <i class="fas fa-star"></i>
+                                <span>{{ movie.vote_average }}/10</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>CineVerse</h3>
+            <p>
+              Your gateway to the world of cinema. Discover, explore, and fall
+              in love with movies all over again.
+            </p>
+            <div class="social-icons">
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Cinematic Journey</h3>
+            <ul class="footer-links">
+              <li><a href="/">Home</a></li>
+              <li><a href="/recommendation">Recommendations</a></li>
+              <li><a href="/popular_people">Popular People</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Movie Spotlight</h3>
+            <ul class="footer-links">
+              <li><a href="/popular">Popular Movies</a></li>
+              <li><a href="/upcoming_movies">Upcoming Movies</a></li>
+              <li><a href="/top_rated">Top Rated Movies</a></li>
+              <li><a href="/now_playing">Now Playing Movies</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Connect With Us</h3>
+            <p>Email: vimalbhoutekar@gmail.com</p>
+            <p>Phone: (+91) 9977316685</p>
+            <p>Address: Tagore Hostel Dr. Hari Singh Gour University Sagar (MP)</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 CineVerse - Shining Light on Cinema. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+    <script src="{{ url_for('static', filename='Script/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='Script/recommendation.js') }}"></script>
+    <script src="{{ url_for('static', filename='Script/ratingDate.js') }}"></script>
+
+<script>
+  function autocomplete(inp, arr) {
+      var currentFocus;
+      inp.addEventListener("input", function(e) {
+          var a, b, i, val = this.value;
+          closeAllLists();
+          if (!val) { return false; }
+          currentFocus = -1;
+          a = document.createElement("DIV");
+          a.setAttribute("id", this.id + "autocomplete-list");
+          a.setAttribute("class", "autocomplete-items");
+          this.parentNode.appendChild(a);
+          for (i = 0; i < arr.length; i++) {
+              if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                  b = document.createElement("DIV");
+                  b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                  b.innerHTML += arr[i].substr(val.length);
+                  b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                  b.addEventListener("click", function(e) {
+                      inp.value = this.getElementsByTagName("input")[0].value;
+                      closeAllLists();
+                  });
+                  a.appendChild(b);
+              }
+          }
+      });
+      inp.addEventListener("keydown", function(e) {
+          var x = document.getElementById(this.id + "autocomplete-list");
+          if (x) x = x.getElementsByTagName("div");
+          if (e.keyCode == 40) {
+              currentFocus++;
+              addActive(x);
+          } else if (e.keyCode == 38) {
+              currentFocus--;
+              addActive(x);
+          } else if (e.keyCode == 13) {
+              e.preventDefault();
+              if (currentFocus > -1) {
+                  if (x) x[currentFocus].click();
+              }
+          }
+      });
+      function addActive(x) {
+          if (!x) return false;
+          removeActive(x);
+          if (currentFocus >= x.length) currentFocus = 0;
+          if (currentFocus < 0) currentFocus = (x.length - 1);
+          x[currentFocus].classList.add("autocomplete-active");
+      }
+      function removeActive(x) {
+          for (var i = 0; i < x.length; i++) {
+              x[i].classList.remove("autocomplete-active");
+          }
+      }
+      function closeAllLists(elmnt) {
+          var x = document.getElementsByClassName("autocomplete-items");
+          for (var i = 0; i < x.length; i++) {
+              if (elmnt != x[i] && elmnt != inp) {
+                  x[i].parentNode.removeChild(x[i]);
+              }
+          }
+      }
+      document.addEventListener("click", function (e) {
+          closeAllLists(e.target);
+      });
+  }
+  
+  var movies = {{ movie_list | tojson | safe }};
+  autocomplete(document.getElementById("movieInput"), movies);
+  </script>
+
+</body>
+
+</html>

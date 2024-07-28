@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }} - Movie Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/movie_details.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/movie_details_other') }}">
+</head>
+<body>
+  <nav id="navbar">
+    <div class="container">
+      <div class="logo-search-wrapper">
+        <a href="/" class="logo">CineVerse</a>
+        <div class="search-container">
+          <form action="/search_results" method="GET">
+            <input
+              type="text"
+              name="query"
+              id="searchBar"
+              placeholder="Search for a movie..."
+            />
+            <button type="submit">
+              <i class="fas fa-search"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/recommendation">Recommendations</a></li>
+        <li class="dropdown">
+          <a href="javascript:void(0)">Movies</a>
+          <div class="dropdown-content">
+            <a href="/popular">Popular Movies</a>
+            <a href="/upcoming_movies">Upcoming Movies</a>
+            <a href="/top_rated">Top Rated Movies</a>
+            <a href="/now_playing">Now Playing Movies</a>
+          </div>
+        </li>
+        <li><a href="/popular_people">Popular People</a></li>
+        <li><a href="/about">About</a></li>
+      </ul>
+      <div class="hamburger">
+        <div class="line1"></div>
+        <div class="line2"></div>
+        <div class="line3"></div>
+      </div>
+    </div>
+  </nav>
+
+    <main class="movie-details">
+        <div class="backdrop" style="background-image: url('{{ movie.backdrop_path }}');">
+            <div class="overlay"></div>
+        </div>
+        <div class="container">
+            <div class="movie-info">
+                <div class="poster">
+                    <img src="{{ movie.poster_path }}" alt="{{ movie.title }} Poster">
+                </div>
+                <div class="details">
+                    <h1>{{ movie.title }}</h1>
+                    <div class="meta-info">
+                        <span class="rating"><i class="fas fa-star"></i> {{ movie.vote_average }}/10</span>
+                        <span class="release-date">Release Date: {{ movie.release_date }}</span>
+                        <span class="runtime">Runtime: {{ movie.runtime }} minutes</span>
+                        <span class="status">Status: {{ movie.status }}</span>
+                    </div>
+                    <div class="genres">
+                        {% for genre in movie.genres.split(', ') %}
+                            <span class="genre-tag">{{ genre }}</span>
+                        {% endfor %}
+                    </div>
+                    <p class="overview">{{ movie.overview }}</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Cast Section -->
+    <section class="cast-section">
+        <div class="container">
+            <h2 class="section-title">Cast</h2>
+            <div class="cast-grid">
+                {% for actor in movie.cast %}
+                    <div class="cast-member">
+                        <a href="{{ url_for('person_details', person_id=actor.id) }}">
+                            <img src="{{ actor.profile_path }}" alt="{{ actor.name }}">
+                            <h3>{{ actor.name }}</h3>
+                            <p>{{ actor.character }}</p>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Posters Section -->
+    <section class="posters-section">
+        <div class="container">
+            <h2 class="section-title">Posters</h2>
+            <div class="posters-grid">
+                {% for poster in movie.images %}
+                    <div class="poster-item">
+                        <img src="{{ poster }}" alt="Movie Poster">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Backdrops Section -->
+    <section class="backdrops-section">
+        <div class="container">
+            <h2 class="section-title">Backdrops</h2>
+            <div class="backdrops-grid">
+                {% for backdrop in movie.backdrops %}
+                    <div class="backdrop-item">
+                        <img src="{{ backdrop }}" alt="Movie Backdrop">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Videos Section -->
+    <section class="videos-section">
+        <div class="container">
+            <h2 class="section-title">Videos</h2>
+            <div class="videos-grid">
+                {% for video in movie.videos %}
+                    <div class="video-item">
+                        <h3>{{ video.name }} ({{ video.type }})</h3>
+                        <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ video.key }}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendations Section -->
+    <section class="recommendations-section">
+        <div class="container">
+            <h2 class="section-title">Recommendations</h2>
+            <div class="recommendations-grid">
+                {% for movie in recommendations %}
+                <div class="recommendation-item">
+                    <a href="{{ url_for('movie_details_other', movie_id=movie.id) }}">
+                        <img src="{{ movie.poster_path }}" alt="{{ movie.title }}" class="recommendation-poster">
+                        <div class="recommendation-info">
+                            <h3 class="recommendation-title">{{ movie.title }}</h3>
+                            <p class="recommendation-date">
+                                <span class="info-label">Release Date:</span>
+                                <span class="release-date" data-date="{{ movie.release_date }}">{{ movie.release_date }}</span>
+                            </p>
+                            <div class="recommendation-rating">
+                                <span class="info-label">Rating:</span>
+                                <i class="fas fa-star"></i>
+                                <span>{{ movie.vote_average }}/10</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>CineVerse</h3>
+            <p>
+              Your gateway to the world of cinema. Discover, explore, and fall
+              in love with movies all over again.
+            </p>
+            <div class="social-icons">
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Cinematic Journey</h3>
+            <ul class="footer-links">
+              <li><a href="/">Home</a></li>
+              <li><a href="/recommendation">Recommendations</a></li>
+              <li><a href="/popular_people">Popular People</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Movie Spotlight</h3>
+            <ul class="footer-links">
+              <li><a href="/popular">Popular Movies</a></li>
+              <li><a href="/upcoming_movies">Upcoming Movies</a></li>
+              <li><a href="/top_rated">Top Rated Movies</a></li>
+              <li><a href="/now_playing">Now Playing Movies</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Connect With Us</h3>
+            <p>Email: vimalbhoutekar@gmail.com</p>
+            <p>Phone: (+91) 9977316685</p>
+            <p>Address: Tagore Hostel Dr. Hari Singh Gour University Sagar (MP)</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 CineVerse - Shining Light on Cinema. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+    <script src="{{ url_for('static', filename='Script/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='Script/ratingDate.js') }}"></script>
+    
+</body>
+</html>

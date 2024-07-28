@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='Style/style.css') }}"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='Style/search_results.css') }}"
+  />
+
+</head>
+<body>
+    <nav id="navbar">
+        <div class="container">
+          <div class="logo-search-wrapper">
+            <a href="/" class="logo">CineVerse</a>
+            <div class="search-container">
+              <form action="/search_results" method="GET">
+                <input
+                  type="text"
+                  name="query"
+                  id="searchBar"
+                  placeholder="Search for a movie..."
+                />
+                <button type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommendation">Recommendations</a></li>
+            <li class="dropdown">
+              <a href="javascript:void(0)">Movies</a>
+              <div class="dropdown-content">
+                <a href="/popular">Popular Movies</a>
+                <a href="/upcoming_movies">Upcoming Movies</a>
+                <a href="/top_rated">Top Rated Movies</a>
+                <a href="/now_playing">Now Playing Movies</a>
+              </div>
+            </li>
+            <li><a href="/popular_people">Popular People</a></li>
+            <li><a href="/about">About</a></li>
+          </ul>
+          <div class="hamburger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+          </div>
+        </div>
+      </nav>
+
+      <header class="search-results-header">
+        <div class="container">
+            <h1>Search Results for "{{ query }}"</h1>
+            <p>Explore the movies, TV shows, and people that match your search.</p>
+        </div>
+    </header>
+
+      <div class="container">
+        <form action="/search_results" method="GET" id="searchForm">
+          <section class="main-search">
+            <h2>Find Your Perfect Movie</h2>
+            <div class="search-box">
+              <input
+                type="text"
+                name="query"
+                id="mainSearchBar"
+                placeholder="Enter a movie title, TV show, or actor name..."
+                autocomplete="off"
+              />
+              <button id="mainSearchButton">
+                <i class="fas fa-search"></i> Search
+              </button>
+            </div>
+            <div id="suggestions"></div>
+          </section>
+        </form>
+    </div>
+
+
+{% if categorized_results %}
+    <div class="container">
+        <div class="search-results-layout">
+          <aside class="category-sidebar">
+            <h2>Categories</h2>
+            {% for category, count in result_counts.items() %}
+                <div class="filter-item {% if loop.first %}active{% endif %}" onclick="showCategory('{{ category }}')">
+                    <span>{{ category }}</span>
+                    <span class="filter-count">{{ count }}</span>
+                </div>
+            {% endfor %}
+        </aside>
+            
+            <main class="results-content">
+                {% for category, items in categorized_results.items() %}
+                    <div class="category-results" id="{{ category }}">
+                        <h2>{{ category }}</h2>
+                        <div class="results-grid">
+                            {% for item in items %}
+                                <div class="result-item">
+                                  {% if category == 'Movies' %}
+                                  <a href="{{ url_for('movie_details_other', movie_id=item.id) }}">
+                                    {% elif category == 'TV Shows' %}
+                                        <a href="{{ url_for('tv_show_details', tv_id=item.id) }}">
+                                    {% elif category == 'People' %}
+                                        <a href="{{ url_for('person_details', person_id=item.id) }}">
+                                    {% endif %}
+                                        <img src="{% if item.poster_path or item.profile_path %}https://image.tmdb.org/t/p/w500{{ item.poster_path or item.profile_path }}{% else %}{{ url_for('static', filename='images/no-image.png') }}{% endif %}" alt="{{ item.name or item.title }}">
+                                        <div class="result-info">
+                                            <h3>{{ item.name or item.title }}</h3>
+                                            {% if category == 'Movies' %}
+                                                <p><span class="title">Release Date:</span> {{ item.release_date or 'N/A' }}</p>
+                                                <div class="rating">
+                                                    <span class="title">Rating:</span>
+                                                    <i class="fas fa-star"></i>
+                                                    <span>{{ item.vote_average|default('N/A', true) }}/10</span>
+                                                </div>
+                                            {% elif category == 'TV Shows' %}
+                                                <p><span class="title">First Air Date:</span> {{ item.first_air_date or 'N/A' }}</p>
+                                                <div class="rating">
+                                                    <span class="title">Rating:</span>
+                                                    <i class="fas fa-star"></i>
+                                                    <span>{{ item.vote_average|default('N/A', true) }}/10</span>
+                                                </div>
+                                            {% elif category == 'People' %}
+                                                <p><span class="title">Known For:</span> {{ item.known_for_department or 'N/A' }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </main>
+        </div>
+    </div>
+{% else %}
+    <div class="container no-results">
+        <p>No results found for "{{ query }}". Please try a different search term.</p>
+    </div>
+{% endif %}
+
+
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>CineVerse</h3>
+        <p>
+          Your gateway to the world of cinema. Discover, explore, and fall
+          in love with movies all over again.
+        </p>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h3>Cinematic Journey</h3>
+        <ul class="footer-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/recommendation">Recommendations</a></li>
+          <li><a href="/popular_people">Popular People</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Movie Spotlight</h3>
+        <ul class="footer-links">
+          <li><a href="/popular">Popular Movies</a></li>
+          <li><a href="/upcoming_movies">Upcoming Movies</a></li>
+          <li><a href="/top_rated">Top Rated Movies</a></li>
+          <li><a href="/now_playing">Now Playing Movies</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Connect With Us</h3>
+        <p>Email: vimalbhoutekar@gmail.com</p>
+        <p>Phone: (+91) 9977316685</p>
+        <p>Address: Tagore Hostel Dr. Hari Singh Gour University Sagar (MP)</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>
+        &copy; 2024 CineVerse - Shining Light on Cinema. All rights
+        reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+    <script src="{{ url_for('static', filename='Script/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='Script/ratingDate.js') }}"></script>
+
+  <script>
+  function showCategory(category) {
+    const categories = document.querySelectorAll('.category-results');
+    const filterItems = document.querySelectorAll('.filter-item');
+    
+    categories.forEach(cat => {
+        if (category === 'All' || cat.id === category) {
+            cat.style.display = 'block';
+        } else {
+            cat.style.display = category === 'All' ? 'block' : 'none';
+        }
+    });
+
+    filterItems.forEach(item => {
+        if (item.textContent.includes(category)) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+// Show all categories by default
+showCategory('All');
+  </script>
+  <script>
+      const searchBar = document.getElementById('mainSearchBar');
+      const suggestionsBox = document.getElementById('suggestions');
+      const searchForm = document.getElementById('searchForm');
+      
+      searchBar.addEventListener('input', async (e) => {
+        const query = e.target.value;
+        if (query.length > 2) {
+          const response = await fetch(`/api/suggestions?query=${encodeURIComponent(query)}`);
+          const suggestions = await response.json();
+          displaySuggestions(suggestions);
+        } else {
+          suggestionsBox.innerHTML = '';
+        }
+      });
+      
+      function displaySuggestions(suggestions) {
+        suggestionsBox.innerHTML = '';
+        suggestions.forEach(item => {
+          const div = document.createElement('div');
+          div.textContent = `${item.name} (${item.type})`;
+          div.addEventListener('click', () => {
+            searchBar.value = item.name;
+            suggestionsBox.innerHTML = '';
+            searchForm.submit();
+          });
+          suggestionsBox.appendChild(div);
+        });
+      }
+      
+      searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (searchBar.value.trim()) {
+          searchForm.submit();
+        }
+      });
+      </script>
+</body>
+</html>

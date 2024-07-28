@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popular People</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='Style/style.css') }}"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='Style/popular_people.css') }}"
+  />
+</head>
+<body>
+    <nav id="navbar">
+        <div class="container">
+          <div class="logo-search-wrapper">
+            <a href="/" class="logo">CineVerse</a>
+            <div class="search-container">
+              <form action="/search_results" method="GET">
+                <input
+                  type="text"
+                  name="query"
+                  id="searchBar"
+                  placeholder="Search for a movie..."
+                />
+                <button type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommendation">Recommendations</a></li>
+            <li class="dropdown">
+              <a href="javascript:void(0)">Movies</a>
+              <div class="dropdown-content">
+                <a href="/popular">Popular Movies</a>
+                <a href="/upcoming_movies">Upcoming Movies</a>
+                <a href="/top_rated">Top Rated Movies</a>
+                <a href="/now_playing">Now Playing Movies</a>
+              </div>
+            </li>
+            <li><a href="/popular_people">Popular People</a></li>
+            <li><a href="/about">About</a></li>
+          </ul>
+          <div class="hamburger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+          </div>
+        </div>
+      </nav>
+    
+      <header class="page-header">
+        <div class="container">
+            <h1>Popular People</h1>
+            <p>Discover the stars shaping the world of cinema</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="people-grid">
+            {% for person in people %}
+            <div class="person-card">
+                <div class="person-image">
+                    <img src="{{ person.profile_path }}" alt="{{ person.name }}">
+                </div>
+                <div class="person-info">
+                    <h2>{{ person.name }}</h2>
+                    <p class="known-for">{{ person.known_for_department }}</p>
+                    <a href="/person/{{ person.id }}" class="view-profile">View Profile</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>CineVerse</h3>
+            <p>
+              Your gateway to the world of cinema. Discover, explore, and fall
+              in love with movies all over again.
+            </p>
+            <div class="social-icons">
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Cinematic Journey</h3>
+            <ul class="footer-links">
+              <li><a href="/">Home</a></li>
+              <li><a href="/recommendation">Recommendations</a></li>
+              <li><a href="/popular_people">Popular People</a></li>
+              <li><a href="/about">About</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Movie Spotlight</h3>
+            <ul class="footer-links">
+              <li><a href="/popular">Popular Movies</a></li>
+              <li><a href="/upcoming_movies">Upcoming Movies</a></li>
+              <li><a href="/top_rated">Top Rated Movies</a></li>
+              <li><a href="/now_playing">Now Playing Movies</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Connect With Us</h3>
+            <p>Email: vimalbhoutekar@gmail.com</p>
+            <p>Phone: (+91) 9977316685</p>
+            <p>Address: Tagore Hostel Dr. Hari Singh Gour University Sagar (MP)</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 CineVerse - Shining Light on Cinema. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+    <script src="{{ url_for('static', filename='Script/script.js') }}"></script>
+</body>
+</html>

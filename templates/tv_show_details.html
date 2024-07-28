@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ tv_show.name }} - TV Show Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='Style/style.css') }}"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='Style/tv_show_details.css') }}"
+  />
+</head>
+<body>
+
+    <nav id="navbar">
+        <div class="container">
+          <div class="logo-search-wrapper">
+            <a href="/" class="logo">CineVerse</a>
+            <div class="search-container">
+              <form action="/search_results" method="GET">
+                <input
+                  type="text"
+                  name="query"
+                  id="searchBar"
+                  placeholder="Search for a movie..."
+                />
+                <button type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/recommendation">Recommendations</a></li>
+            <li class="dropdown">
+              <a href="javascript:void(0)">Movies</a>
+              <div class="dropdown-content">
+                <a href="/popular">Popular Movies</a>
+                <a href="/upcoming_movies">Upcoming Movies</a>
+                <a href="/top_rated">Top Rated Movies</a>
+                <a href="/now_playing">Now Playing Movies</a>
+              </div>
+            </li>
+            <li><a href="/popular_people">Popular People</a></li>
+            <li><a href="/about">About</a></li>
+          </ul>
+          <div class="hamburger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+          </div>
+        </div>
+      </nav>
+
+    <main class="tv-show-details">
+        <div class="backdrop" style="background-image: url('{{ tv_show.backdrop_path }}');">
+            <div class="overlay"></div>
+        </div>
+        <div class="container">
+            <div class="tv-show-info">
+                <div class="poster">
+                    <img src="{{ tv_show.poster_path }}" alt="{{ tv_show.name }} Poster">
+                </div>
+                <div class="details">
+                    <h1>{{ tv_show.name }}</h1>
+                    <div class="meta-info">
+                        <span class="rating"><i class="fas fa-star"></i> {{ tv_show.vote_average }}/10</span>
+                        <span class="first-air-date">First Aired: {{ tv_show.first_air_date }}</span>
+                        <span class="seasons">Seasons: {{ tv_show.number_of_seasons }}</span>
+                        <span class="status">Status: {{ tv_show.status }}</span>
+                    </div>
+                    <div class="genres">
+                        {% for genre in tv_show.genres.split(', ') %}
+                            <span class="genre-tag">{{ genre }}</span>
+                        {% endfor %}
+                    </div>
+                    <p class="overview">{{ tv_show.overview }}</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Cast Section -->
+<section class="cast-section">
+    <div class="container">
+        <h2>Cast</h2>
+        <div class="cast-grid">
+            {% for actor in tv_show.cast %}
+                <div class="cast-member">
+                    <a href="{{ url_for('person_details', person_id=actor.id) }}">
+                        <img src="{{ actor.profile_path }}" alt="{{ actor.name }}">
+                        <h3>{{ actor.name }}</h3>
+                        <p>{{ actor.character }}</p>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Seasons Section -->
+<section class="seasons-section">
+    <div class="container">
+        <h2>Seasons</h2>
+        <div class="seasons-grid">
+            {% for season in tv_show.seasons %}
+                <div class="season-card">
+                    <a href="{{ url_for('season_details', tv_id=tv_show.id, season_number=season.season_number) }}">
+                        <img src="{{ season.poster_path }}" alt="Season {{ season.season_number }} Poster">
+                        <h3>Season {{ season.season_number }}</h3>
+                        <p>Episodes: {{ season.episode_count }}</p>
+                        <p>Air Date: {{ season.air_date }}</p>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Posters Section -->
+<section class="posters-section">
+  <div class="container">
+      <h2>Posters</h2>
+      <div class="posters-grid">
+          {% for poster in tv_show.posters %}
+              <div class="poster-item">
+                  <img src="{{ poster }}" alt="TV Show Poster">
+              </div>
+          {% endfor %}
+      </div>
+  </div>
+</section>
+
+<!-- Backdrops Section -->
+<section class="backdrops-section">
+    <div class="container">
+        <h2>Backdrops</h2>
+        <div class="backdrops-grid">
+            {% for backdrop in tv_show.backdrops %}
+                <div class="backdrop-item">
+                    <img src="{{ backdrop }}" alt="TV Show Backdrop">
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+
+<!-- Videos Section -->
+<section class="videos-section">
+    <div class="container">
+        <h2>Videos</h2>
+        <div class="videos-grid">
+            {% for video in tv_show.videos %}
+                <div class="video-item">
+                    <h3>{{ video.name }} ({{ video.type }})</h3>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ video.key }}" frameborder="0" allowfullscreen></iframe>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Recommendations Section -->
+<section class="recommendations-section">
+  <div class="container">
+      <h2>Recommendations</h2>
+      <div class="movie-grid">
+          {% for show in tv_show.recommendations %}
+          <div class="movie-item">
+              <a href="{{ url_for('tv_show_details', tv_id=show.id) }}">
+                  <img src="{{ show.poster_path }}" alt="{{ show.name }}">
+                  <div class="movie-info">
+                      <h2>{{ show.name }}</h2>
+                      <p><span class="title">First Air Date:</span> <span class="release-date" data-date="{{ show.first_air_date }}">{{ show.first_air_date }}</span></p>
+                      <div class="rating">
+                          <span class="title">Rating:</span>
+                          <i class="fas fa-star"></i>
+                          <span>{{ show.vote_average }}/10</span>
+                      </div>
+                  </div>
+              </a>
+          </div>
+          {% endfor %}
+      </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>CineVerse</h3>
+        <p>
+          Your gateway to the world of cinema. Discover, explore, and fall
+          in love with movies all over again.
+        </p>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h3>Cinematic Journey</h3>
+        <ul class="footer-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/recommendation">Recommendations</a></li>
+          <li><a href="/popular_people">Popular People</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Movie Spotlight</h3>
+        <ul class="footer-links">
+          <li><a href="/popular">Popular Movies</a></li>
+          <li><a href="/upcoming_movies">Upcoming Movies</a></li>
+          <li><a href="/top_rated">Top Rated Movies</a></li>
+          <li><a href="/now_playing">Now Playing Movies</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Connect With Us</h3>
+        <p>Email: vimalbhoutekar@gmail.com</p>
+        <p>Phone: (+91) 9977316685</p>
+        <p>Address: Tagore Hostel Dr. Hari Singh Gour University Sagar (MP)</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>
+        &copy; 2024 CineVerse - Shining Light on Cinema. All rights
+        reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='Script/ratingDate.js') }}"></script>
+</body>
+</html>
