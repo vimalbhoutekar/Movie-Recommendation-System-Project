@@ -75,7 +75,13 @@ After installing the system, follow these steps to use it:
 ![home page 3](https://github.com/user-attachments/assets/fe7d922e-d6f0-46da-b17f-7070dd4675df)
 
 #### Recommendations Page
-![Recommendations Page](static/Images/recommendations_screenshot.png)
+![recom1](https://github.com/user-attachments/assets/04dd77f0-f0af-4caf-ad30-7c33d23c78e9)
+
+![recom2](https://github.com/user-attachments/assets/dacfdea7-480d-48a7-a26d-fbaabd8e2785)
+![recom 3](https://github.com/user-attachments/assets/29f2ea0e-cc3e-4c01-a703-f9aa68a96a70)
+![recom 4](https://github.com/user-attachments/assets/da0b7153-2fa1-4ec2-b1c4-f7eafcd59ec8)
+![recom 5](https://github.com/user-attachments/assets/79be2cad-1acc-4c93-81ef-af1916201b35)
+![recom 6](https://github.com/user-attachments/assets/74db8d30-d28b-4ca6-8a4a-5b0e13ed7b55)
 
 ### Videos
 
