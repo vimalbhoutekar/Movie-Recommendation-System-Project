@@ -69,12 +69,12 @@ After installing the system, follow these steps to use it:
 
 ### Screenshots
 
-#### Home Page
+### Home Page
 ![home page 1](https://github.com/user-attachments/assets/d6986881-6164-4eab-99aa-c9c96c2a7126)
 ![home page 2](https://github.com/user-attachments/assets/de80983f-d65f-4a36-8543-e58e43f9c20a)
 ![home page 3](https://github.com/user-attachments/assets/fe7d922e-d6f0-46da-b17f-7070dd4675df)
 
-#### Recommendations Page
+### Recommendations Page
 ![recom1](https://github.com/user-attachments/assets/04dd77f0-f0af-4caf-ad30-7c33d23c78e9)
 
 ![recom2](https://github.com/user-attachments/assets/dacfdea7-480d-48a7-a26d-fbaabd8e2785)
