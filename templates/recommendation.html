@@ -68,6 +68,12 @@
         <p>Discover your next favorite movie based on your preferences</p>
     </header>
 
+    {% if error %}
+    <div class="error-container">
+        <p class="error-message"><i class="fas fa-exclamation-circle"></i> {{ error }}</p>
+    </div>
+    {% endif %}
+
     <main class="container">
         <section class="search-section">
             <h2>Find Your Perfect Movie Match</h2>

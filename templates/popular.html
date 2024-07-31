@@ -17,6 +17,7 @@
     rel="stylesheet"
     href="{{ url_for('static', filename='Style/popular.css') }}"
   />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <nav id="navbar">
@@ -65,7 +66,7 @@
         <p>Discover the most talked-about films that are captivating audiences worldwide.</p>
     </header>
 
-    <main class="container">
+    <!-- <main class="container">
         <div class="movies-container">
             {% for movie in movies %}
             <div class="movie-item">
@@ -83,7 +84,30 @@
             </div>
             {% endfor %}
         </div>
-    </main>
+    </main> -->
+
+
+    <main class="container">
+      <div id="movies-container" class="movies-container">
+          {% for movie in movies %}
+          <div class="movie-item">
+              <a href="{{ url_for('movie_details_other', movie_id=movie.id) }}">
+                  <img src="{{ movie.poster_path }}" alt="{{ movie.title }}">
+                  <div class="movie-info">
+                      <h2>{{ movie.title }}</h2>
+                      <div class="rating">
+                          <span class="title">Rating:</span>
+                          <i class="fas fa-star"></i>
+                          <span>{{ movie.vote_average }}/10</span>
+                      </div>
+                  </div>
+              </a>
+          </div>
+          {% endfor %}
+      </div>
+      <div id="loading" style="display: none;">Loading more movies...</div>
+  </main>
+
 
     <footer>
       <div class="container">
@@ -138,5 +162,57 @@
 
     <script src="{{ url_for('static', filename='Script/script.js') }}"></script>
     <script src="{{ url_for('static', filename='Script/ratingDate.js') }}"></script>
+
+    <script>
+      let currentPage = {{ current_page }};
+      const totalPages = {{ total_pages }};
+      let loading = false;
+
+      $(window).scroll(function() {
+          if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+              loadMoreMovies();
+          }
+      });
+
+      function loadMoreMovies() {
+          if (loading || currentPage >= totalPages) return;
+          loading = true;
+          currentPage++;
+          
+          $('#loading').show();
+          
+          $.ajax({
+              url: '/popular?page=' + currentPage,
+              method: 'GET',
+              headers: {'X-Requested-With': 'XMLHttpRequest'},
+              success: function(data) {
+                  data.movies.forEach(function(movie) {
+                      const movieHtml = `
+                          <div class="movie-item">
+                              <a href="/movie_other/${movie.id}">
+                                  <img src="${movie.poster_path}" alt="${movie.title}">
+                                  <div class="movie-info">
+                                      <h2>${movie.title}</h2>
+                                      <div class="rating">
+                                          <span class="title">Rating:</span>
+                                          <i class="fas fa-star"></i>
+                                          <span>${movie.vote_average}/10</span>
+                                      </div>
+                                  </div>
+                              </a>
+                          </div>
+                      `;
+                      $('#movies-container').append(movieHtml);
+                  });
+                  loading = false;
+                  $('#loading').hide();
+              },
+              error: function() {
+                  loading = false;
+                  $('#loading').hide();
+              }
+          });
+      }
+  </script>
 </body>
 </html>

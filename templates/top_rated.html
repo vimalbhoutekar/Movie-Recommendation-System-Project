@@ -66,7 +66,7 @@
     </header>
 
     <main class="container">
-        <div class="movie-grid">
+        <div class="movie-grid" id="movieGrid">
             {% for movie in movies %}
             <div class="movie-item">
               <a href="{{ url_for('movie_details_other', movie_id=movie.id) }}">
@@ -84,6 +84,9 @@
             </div>
             {% endfor %}
         </div>
+        <div id="loadingMore" style="display: none; text-align: center; margin-top: 20px;">
+          <i class="fas fa-spinner fa-spin"></i> Loading more movies...
+      </div>
     </main>
 
     <footer>
@@ -137,10 +140,76 @@
     </footer>
 
 
+    <script>
+      let currentPage = {{ current_page }};
+      const totalPages = {{ total_pages }};
+      let isLoading = false;
+      
+      window.addEventListener('scroll', () => {
+          if (isLoading) return;
+          
+          if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+              loadMoreMovies();
+          }
+      });
+      
+      function loadMoreMovies() {
+          if (currentPage >= totalPages) return;
+          
+          isLoading = true;
+          currentPage++;
+          
+          document.getElementById('loadingMore').style.display = 'block';
+          
+          fetch(`/top_rated?page=${currentPage}`, {
+              headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+              }
+          })
+          .then(response => response.json())
+          .then(data => {
+              const movieGrid = document.getElementById('movieGrid');
+              data.movies.forEach(movie => {
+                  const movieElement = createMovieElement(movie);
+                  movieGrid.appendChild(movieElement);
+              });
+              isLoading = false;
+              document.getElementById('loadingMore').style.display = 'none';
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              isLoading = false;
+              document.getElementById('loadingMore').style.display = 'none';
+          });
+      }
+      
+      function createMovieElement(movie) {
+          const movieItem = document.createElement('div');
+          movieItem.className = 'movie-item';
+          movieItem.innerHTML = `
+              <a href="/movie_other/${movie.id}">
+                  <img src="${movie.poster_path}" alt="${movie.title}">
+                  <div class="movie-info">
+                      <h2>${movie.title}</h2>
+                      <p><span class="title">Release Date:</span> <span class="release-date" data-date="${movie.release_date}">${movie.release_date}</span></p>
+                      <div class="rating">
+                          <span class="title">Rating:</span>
+                          <i class="fas fa-star"></i>
+                          <span>${movie.vote_average}/10</span>
+                      </div>
+                  </div>
+              </a>
+          `;
+          return movieItem;
+      }
+      </script>
+
+
+
       <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
 
     <script src="{{ url_for('static', filename='Script/script.js') }}"></script>
     <script src="{{ url_for('static', filename='Script/ratingDate.js') }}"></script>
-
+   
 </body>
 </html>

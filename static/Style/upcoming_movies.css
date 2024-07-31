@@ -66,6 +66,12 @@
     color: inherit;
 }
 
+#loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+    color: #333;
+}
 @media screen and (max-width: 768px) {
     .upcoming-header h1 {
         font-size: 2.8rem;

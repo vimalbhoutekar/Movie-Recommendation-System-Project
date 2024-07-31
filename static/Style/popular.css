@@ -92,6 +92,13 @@
     color: inherit;
 }
 
+#loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+    color: #333;
+}
+
 /* Responsive styles */
 @media screen and (max-width: 768px) {
     .popular-header h1 {

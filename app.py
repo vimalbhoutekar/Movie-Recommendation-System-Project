@@ -6,6 +6,7 @@ import asyncio
 import pandas as pd
 from flask import jsonify
 from collections import OrderedDict
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -23,9 +24,10 @@ def fetch_poster(movie_id):
     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
     return full_path
 
-def fetch_popular_movies():
+
+def fetch_popular_movies(page=1):
     api_key = "694ebd3b6283c17a868004cb14dbcecb"
-    url = f"https://api.themoviedb.org/3/movie/popular?api_key={api_key}"
+    url = f"https://api.themoviedb.org/3/movie/popular?api_key={api_key}&page={page}"
     response = requests.get(url)
     data = response.json()
     popular_movies = []
@@ -37,43 +39,68 @@ def fetch_popular_movies():
             'id': movie['id']
         }
         popular_movies.append(movie_details)
-    return popular_movies
+    return {
+        'movies': popular_movies,
+        'total_pages': data['total_pages'],
+        'current_page': data['page']
+    }
 
-def fetch_popular_people():
+
+def fetch_popular_people(page=1):
     api_key = "694ebd3b6283c17a868004cb14dbcecb"
-    url = f"https://api.themoviedb.org/3/person/popular?api_key={api_key}"
+    url = f"https://api.themoviedb.org/3/person/popular?api_key={api_key}&page={page}"
     response = requests.get(url)
     data = response.json()
     popular_people = []
     for person in data['results']:
         person_details = {
             'name': person['name'],
-            'profile_path': f"https://image.tmdb.org/t/p/w500/{person['profile_path']}",
-            'id': person['id']
+            'profile_path': f"https://image.tmdb.org/t/p/w500/{person['profile_path']}" if person['profile_path'] else "https://via.placeholder.com/500x750",
+            'id': person['id'],
+            'known_for_department': person.get('known_for_department', 'N/A')
         }
         popular_people.append(person_details)
-    return popular_people
+    return {
+        'people': popular_people,
+        'total_pages': data['total_pages'],
+        'current_page': data['page']
+    }
 
-def fetch_upcoming_movies():
+
+
+def fetch_upcoming_movies(page=1):
     api_key = "694ebd3b6283c17a868004cb14dbcecb"
-    url = f"https://api.themoviedb.org/3/movie/upcoming?api_key={api_key}"
+    
+    # Calculate the date range for upcoming movies (e.g., next 6 months)
+    today = datetime.now().strftime("%Y-%m-%d")
+    six_months_later = (datetime.now() + timedelta(days=180)).strftime("%Y-%m-%d")
+    
+    url = f"https://api.themoviedb.org/3/discover/movie?api_key={api_key}&sort_by=release_date.asc&primary_release_date.gte={today}&primary_release_date.lte={six_months_later}&page={page}"
+    
     response = requests.get(url)
     data = response.json()
+    
     upcoming_movies = []
     for movie in data['results']:
         movie_details = {
             'title': movie['title'],
-            'poster_path': f"https://image.tmdb.org/t/p/w500/{movie['poster_path']}",
+            'poster_path': f"https://image.tmdb.org/t/p/w500/{movie['poster_path']}" if movie['poster_path'] else None,
             'vote_average': movie['vote_average'],
             'release_date': movie['release_date'],
             'id': movie['id']
         }
         upcoming_movies.append(movie_details)
-    return upcoming_movies
+    
+    return {
+        'movies': upcoming_movies,
+        'total_pages': data['total_pages'],
+        'current_page': data['page']
+    }
 
-def fetch_top_rated_movies():
+
+def fetch_top_rated_movies(page=1):
     api_key = "694ebd3b6283c17a868004cb14dbcecb"
-    url = f"https://api.themoviedb.org/3/movie/top_rated?api_key={api_key}"
+    url = f"https://api.themoviedb.org/3/movie/top_rated?api_key={api_key}&page={page}"
     response = requests.get(url)
     data = response.json()
     top_rated_movies = []
@@ -86,11 +113,17 @@ def fetch_top_rated_movies():
             'id': movie['id']
         }
         top_rated_movies.append(movie_details)
-    return top_rated_movies
+    return {
+        'movies': top_rated_movies,
+        'total_pages': data['total_pages'],
+        'current_page': data['page']
+    }
 
-def fetch_now_playing_movies():
+
+
+def fetch_now_playing_movies(page=1):
     api_key = "694ebd3b6283c17a868004cb14dbcecb"
-    url = f"https://api.themoviedb.org/3/movie/now_playing?api_key={api_key}"
+    url = f"https://api.themoviedb.org/3/movie/now_playing?api_key={api_key}&page={page}"
     response = requests.get(url)
     data = response.json()
     now_playing_movies = []
@@ -103,7 +136,11 @@ def fetch_now_playing_movies():
             'id': movie['id']
         }
         now_playing_movies.append(movie_details)
-    return now_playing_movies
+    return {
+        'movies': now_playing_movies,
+        'total_pages': data['total_pages'],
+        'current_page': data['page']
+    }
 
 
 async def fetch_movie_details(session, movie_id):
@@ -182,9 +219,10 @@ def home():
     movie_list = movies['title'].values
     return render_template("index.html", movie_list=movie_list)
 
+
 @app.route('/recommendation', methods=['GET', 'POST'])
 async def recommendation():
-    movie_list = movies['title'].values.tolist()  # Convert to a regular Python list
+    movie_list = movies['title'].values.tolist()
     status = False
     error = None
     selected_movie = None
@@ -194,16 +232,16 @@ async def recommendation():
         try:
             if request.form:
                 movies_name = request.form['movies']
-                async with aiohttp.ClientSession() as session:
-                    # Fetch details for the selected movie
-                    selected_movie_id = movies[movies['title'] == movies_name].movie_id.values[0]
-                    selected_movie = await fetch_movie_details(session, selected_movie_id)
-                    
-                    # Fetch recommendations
-                    recommended_movies = await recommend(movies_name)
-                status = True
+                if movies_name not in movie_list:
+                    error = "The movie you entered is not found in our dataset. Please try another movie."
+                else:
+                    async with aiohttp.ClientSession() as session:
+                        selected_movie_id = movies[movies['title'] == movies_name].movie_id.values[0]
+                        selected_movie = await fetch_movie_details(session, selected_movie_id)
+                        recommended_movies = await recommend(movies_name)
+                    status = True
         except Exception as e:
-            error = {'error': str(e)}
+            error = f"An error occurred: {str(e)}"
 
     return render_template("recommendation.html",
                            movie_list=movie_list,
@@ -211,7 +249,6 @@ async def recommendation():
                            selected_movie=selected_movie,
                            recommended_movies=recommended_movies,
                            error=error)
-
 
 @app.route('/movie/<int:movie_id>')
 async def movie_details(movie_id):
@@ -459,31 +496,50 @@ def person_details(person_id):
     return render_template('person_details.html', person=person)
 
 
+
 @app.route('/popular')
 def popular_movies():
-    movies = fetch_popular_movies()
-    return render_template('popular.html', movies=movies)
+    page = request.args.get('page', 1, type=int)
+    data = fetch_popular_movies(page)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(data)
+    return render_template('popular.html', movies=data['movies'], current_page=data['current_page'], total_pages=data['total_pages'])
+
 
 
 @app.route('/upcoming_movies')
 def upcoming_movies():
-    movies = fetch_upcoming_movies()
-    return render_template('upcoming_movies.html', movies=movies)
+    page = request.args.get('page', 1, type=int)
+    data = fetch_upcoming_movies(page)
+    return render_template('upcoming_movies.html', movies=data['movies'], current_page=data['current_page'], total_pages=data['total_pages'])
+
+
 
 @app.route('/popular_people')
 def popular_people():
-    people = fetch_popular_people()
-    return render_template('popular_people.html', people=people)
+    page = request.args.get('page', 1, type=int)
+    data = fetch_popular_people(page)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(data)
+    return render_template('popular_people.html', people=data['people'], current_page=data['current_page'], total_pages=data['total_pages'])
+
 
 @app.route('/top_rated')
 def top_rated():
-    movies = fetch_top_rated_movies()
-    return render_template('top_rated.html', movies=movies)
+    page = request.args.get('page', 1, type=int)
+    data = fetch_top_rated_movies(page)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(data)
+    return render_template('top_rated.html', movies=data['movies'], current_page=data['current_page'], total_pages=data['total_pages'])
+
 
 @app.route('/now_playing')
 def now_playing():
-    movies = fetch_now_playing_movies()
-    return render_template('now_playing.html', movies=movies)
+    page = request.args.get('page', 1, type=int)
+    data = fetch_now_playing_movies(page)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(data)
+    return render_template('now_playing.html', movies=data['movies'], current_page=data['current_page'], total_pages=data['total_pages'])
 
 @app.route('/about')
 def about():
@@ -572,6 +628,7 @@ async def search_results():
                            result_counts=result_counts,
                            total_results=total_results,
                            query=query)
+
 
 if __name__ == '__main__':
     app.debug = True
